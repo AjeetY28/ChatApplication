@@ -1,7 +1,39 @@
-import React from 'react'
+import React, { useRef ,useState } from 'react'
 import { MdAttachFile, MdSend } from "react-icons/md";
 
+
+
+
 const ChatPage = () => {
+    const[messages, setMessages] = useState([
+        {
+            content:"hello ?",
+            sender:"Ajeet",
+        },
+        {
+            content:"hello ?",
+            sender:"Akash",
+        },
+        {
+            content:"hello ?",
+            sender:"Pratik",
+        },
+        
+        {
+            content:"hello ?",
+            sender:"Pratik",
+        },
+        {
+            content:"hello ?",
+            sender:"Ajeet",
+        },
+    ]);
+    const[input, setInput] = useState("");
+    const inputRef=useRef(null);
+    const chatBoxRef=useRef(null);
+    const [stompClient, setStompClient] = useState(null);
+    const [roomId, setRoomId] = useState(null);
+    const [currentUser] = useState("Ajeet");
   return (
     <div className=''>
 
@@ -28,8 +60,35 @@ const ChatPage = () => {
             </div>
         </header>
 
-        {/* Input message container*/}
+        <main className='py-20  px-10 w-2/3 dark:bg-slate-600 mx-auto h-screen overflow-auto'>
+            {
+                messages.map((message,index) =>(
+                   <div key={index} className={`flex ${message.sender==currentUser ? 'justify-end' : 'justify-start'}`}>
+                     <div  
+                     className={`my-2 
+                        ${
+                            message.sender===currentUser ? 'bg-green-800 ': 'bg-gray-800'} p-2 max-w-xs rounded`}>
+                        
+                        <div className='flex flex-row gap-2'>
+                            <img className='h-10 w-10' 
+                            src={'https://avatar.iran.liara.run/public'} 
+                            alt="" />
+                        <div className='flex flex-col gap-1'>
+                           <p className='text-sm font-bold'>{message.sender}</p>
+                           <p>{message.content}</p>
 
+                        </div>
+                        </div>
+
+                    </div>
+                   </div>
+                ))
+            }
+        </main>
+
+
+
+        {/* Input message container*/}
         <div className=' fixed bottom-4 w-full h-16'>
            <div className='h-full pr-10  gap-4  flex items-center justify-between rounded-full w-1/2 mx-auto  dark:bg-gray-900'>
                 <input type="text" className='dark:border-gray-600 w-full  dark:bg-gray-800 w h-full rounded-full px-5 py-2 focus:outline-none' 
