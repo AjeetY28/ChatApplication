@@ -1,7 +1,7 @@
 import React,{useState} from "react";
 import chatIcon from "../assets/chat.png";
 import toast, { Toaster } from 'react-hot-toast';
-
+import {createRoomApi} from "../services/RoomService";
 const JoinCreateChat = () => {
 
     const [detail,setDetail] = useState({
@@ -26,13 +26,28 @@ const JoinCreateChat = () => {
 
     }
 
-    function createRoom()
+    async function createRoom()
     {
         if(validateFrom())
         {
             //create room
             console.log(detail);
             //call api to create room on
+            try{
+               const response =await createRoomApi(detail.roomId)
+               toast.success("Room Created Successfully !!");
+               joinChat();
+            }catch(error){
+                console.log(error);
+                if(error.status==400)
+                {
+                    toast.error("Room Already Exists !!")   
+                }else
+                {
+
+                    toast("Error in creating room");
+                }
+            }
         }
     }
 
