@@ -22,6 +22,7 @@ const JoinCreateChat = () => {
         if(validateFrom())
         {
             //join chat
+            
         }
 
     }
@@ -36,6 +37,7 @@ const JoinCreateChat = () => {
             try{
                const response =await createRoomApi(detail.roomId)
                toast.success("Room Created Successfully !!");
+               //join room
                joinChat();
             }catch(error){
                 console.log(error);
