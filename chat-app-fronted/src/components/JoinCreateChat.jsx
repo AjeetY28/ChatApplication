@@ -1,13 +1,18 @@
 import React,{useState} from "react";
 import chatIcon from "../assets/chat.png";
-import toast, { Toaster } from 'react-hot-toast';
-import {createRoomApi} from "../services/RoomService";
+import toast from 'react-hot-toast';
+import {createRoomApi, joinChatApi} from "../services/RoomService";
+import useChatContext from "../context/ChatContext";
+import { useNavigate } from "react-router";
 const JoinCreateChat = () => {
 
     const [detail,setDetail] = useState({
         roomId:"",
         userName:"",
     });
+
+        const{roomId, userName, setRoomId, setCurrentUser ,setConnected}=useChatContext();
+        const navigate =useNavigate();
 
     function handleFormInputChange(event){
         setDetail({
@@ -17,12 +22,40 @@ const JoinCreateChat = () => {
 
     }
 
-    function joinChat()
+    function validateFrom()
+    {
+      if(detail.roomId === "" || detail.userName === "")
+        {
+            toast.error("Invalid Input !!")
+            return false;
+        }
+        return true;
+    } 
+
+    async function joinChat()
     {
         if(validateFrom())
         {
             //join chat
             
+            try{
+            const room=await joinChatApi(detail.roomId);
+            toast.success("Joined..");
+            setCurrentUser(detail.userName);
+            setRoomId(room.roomId);
+            setConnected(true);
+            navigate('/chat');
+
+            }catch(error){
+                if(error.status == 400)
+                {
+                    toast.error(error.response.data);
+                }else{
+                    toast.error("Error Joining Room");
+                }
+                console.log(error);
+            }
+
         }
 
     }
@@ -38,7 +71,13 @@ const JoinCreateChat = () => {
                const response =await createRoomApi(detail.roomId)
                toast.success("Room Created Successfully !!");
                //join room
-               joinChat();
+
+               setCurrentUser(detail.userName);
+               setRoomId(response.roomId);
+               setConnected(true);
+               //forward to chat page
+                navigate('/chat');
+
             }catch(error){
                 console.log(error);
                 if(error.status==400)
@@ -53,15 +92,7 @@ const JoinCreateChat = () => {
         }
     }
 
-    function validateFrom()
-    {
-      if(detail.roomId.trim() === "" || detail.userName.trim() === "")
-        {
-            toast.error("Invalid Input !!")
-            return false;
-        }
-        return true;
-    } 
+   
   return <div className="min-h-screen flex items-center justify-center">
     <div className="p-10 dark:border-gray-700 border w-full flex flex-col gap-5 max-w-md rounded dark:bg-gray-900 shadow">
        
