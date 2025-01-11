@@ -46,10 +46,10 @@ const ChatPage = () => {
             loadMessage();
         }
     },[]);
-    //stompClient ko init karna honge
+    
     //subscribe
-    //scroll down
-
+    
+    //scroll down handle
     useEffect(()=>{
         if(chatBoxRef.current){
             chatBoxRef.current.scroll({
@@ -58,6 +58,8 @@ const ChatPage = () => {
             });
         }
     },[messages]);
+
+        //stompClient ko connect karna hoga
         useEffect(()=>{
             const connectWebSocket=()=>{
 
@@ -104,7 +106,7 @@ const ChatPage = () => {
             }
             
         };
-
+        //logout handler
         function handleLogout()
         {
             stompClient.disconnect();
