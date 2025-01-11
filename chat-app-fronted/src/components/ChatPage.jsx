@@ -6,14 +6,14 @@ import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import toast from "react-hot-toast";
 import { baseURL } from "../config/AxiosHelper";
-
+import { getMessages } from "../services/RoomService";
 
 const ChatPage = () => {
     
     const {roomId,currentUser,connected} = useChatContext();
-    console.log(roomId);
-    console.log(currentUser);
-    console.log(connected);
+    // console.log(roomId);
+    // console.log(currentUser);
+    // console.log(connected);
 
     const navigate = useNavigate();
 
@@ -23,29 +23,7 @@ const ChatPage = () => {
         }
     },[connected,roomId,currentUser]);
 
-    const[messages, setMessages] = useState([
-        {
-            content:"hello ?",
-            sender:"Ajeet",
-        },
-        {
-            content:"hello ?",
-            sender:"Akash",
-        },
-        {
-            content:"hello ?",
-            sender:"Pratik",
-        },
-        
-        {
-            content:"hello ?",
-            sender:"Pratik",
-        },
-        {
-            content:"hello ?",
-            sender:"ajeet",
-        },
-    ]);
+    const[messages, setMessages] = useState([]);
     const[input, setInput] = useState("");
     const inputRef=useRef(null);
     const chatBoxRef=useRef(null);
@@ -55,14 +33,37 @@ const ChatPage = () => {
     
     //page init
     //message ko load krne hoge
+    useEffect(()=>{
+        async function loadMessage(){
+            try{
+                const messages=await getMessages(roomId);
+                // console.log(messages);
+                setMessages(messages);
+            }catch(error)
+            {}
+        }
+        if(connected){
+            loadMessage();
+        }
+    },[]);
     //stompClient ko init karna honge
     //subscribe
+    //scroll down
+
+    useEffect(()=>{
+        if(chatBoxRef.current){
+            chatBoxRef.current.scroll({
+                top:chatBoxRef.current.scrollHeight,
+                behavior:"smooth",
+            });
+        }
+    },[messages]);
         useEffect(()=>{
             const connectWebSocket=()=>{
 
                 //SockJS
                 const sock = new SockJS(`${baseURL}/chat`);
-                const client=Stomp.over(sock);
+                const client=Stomp.over(()=>sock);
                 client.connect({},()=>{
 
                      
@@ -85,7 +86,22 @@ const ChatPage = () => {
 
         },[roomId])
     //send message handler
+        const sendMessage=async()=>{
+            if(stompClient && connected && input.trim()){
+                
+                console.log(input);
+                const message={
+                    sender:currentUser,
+                    content:input,
+                    roomId:roomId,
+                };
 
+                stompClient.send(`/app/sendMessage/${roomId}`,{},JSON.stringify(message));
+                setInput(""); 
+                
+            }
+            
+        };
 
 
   return (
@@ -114,7 +130,7 @@ const ChatPage = () => {
             </div>
         </header>
 
-        <main className='py-20  px-10 w-2/3 dark:bg-slate-600 mx-auto h-screen overflow-auto'>
+        <main ref={chatBoxRef} className='py-20  px-10 w-2/3 dark:bg-slate-600 mx-auto h-screen overflow-auto'>
             {
                 messages.map((message,index) =>(
                    <div key={index} className={`flex ${message.sender==currentUser ? 'justify-end' : 'justify-start'}`}>
@@ -145,7 +161,11 @@ const ChatPage = () => {
         {/* Input message container*/}
         <div className=' fixed bottom-4 w-full h-16'>
            <div className='h-full pr-10  gap-4  flex items-center justify-between rounded-full w-1/2 mx-auto  dark:bg-gray-900'>
-                <input type="text" className='dark:border-gray-600 w-full  dark:bg-gray-800 w h-full rounded-full px-5 py-2 focus:outline-none' 
+                <input 
+                value={input}
+                onChange={(e)=>{setInput(e.target.value)
+                }}
+                type="text" className='dark:border-gray-600 w-full  dark:bg-gray-800 w h-full rounded-full px-5 py-2 focus:outline-none' 
                 placeholder='Enter your message here'/>
                
                <div className='flex gap-1'>
@@ -153,7 +173,7 @@ const ChatPage = () => {
                     <MdAttachFile size={20} />
                     </button>
 
-                    <button className='dark:bg-green-600 px-3 py-2 h-10 w-10 flex justify-center items-center rounded-full'>
+                    <button onClick={sendMessage} className='dark:bg-green-600 px-3 py-2 h-10 w-10 flex justify-center items-center rounded-full'>
                     <MdSend size={20} />
                     </button>
                </div>
