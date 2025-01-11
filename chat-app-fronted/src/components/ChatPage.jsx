@@ -1,10 +1,28 @@
-import React, { useRef ,useState } from 'react'
+import React, { useEffect , useRef ,useState } from 'react';
 import { MdAttachFile, MdSend } from "react-icons/md";
-
-
+import useChatContext from "../context/ChatContext"
+import { useNavigate } from "react-router";
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+import toast from "react-hot-toast";
+import { baseURL } from "../config/AxiosHelper";
 
 
 const ChatPage = () => {
+    
+    const {roomId,currentUser,connected} = useChatContext();
+    console.log(roomId);
+    console.log(currentUser);
+    console.log(connected);
+
+    const navigate = useNavigate();
+
+    useEffect(()=>{
+        if(!connected){
+            navigate("/");
+        }
+    },[connected,roomId,currentUser]);
+
     const[messages, setMessages] = useState([
         {
             content:"hello ?",
@@ -25,15 +43,51 @@ const ChatPage = () => {
         },
         {
             content:"hello ?",
-            sender:"Ajeet",
+            sender:"ajeet",
         },
     ]);
     const[input, setInput] = useState("");
     const inputRef=useRef(null);
     const chatBoxRef=useRef(null);
     const [stompClient, setStompClient] = useState(null);
-    const [roomId, setRoomId] = useState(null);
-    const [currentUser] = useState("Ajeet");
+    // const [roomId, setRoomId] = useState(null);
+    // const [currentUser] = useState("Ajeet");
+    
+    //page init
+    //message ko load krne hoge
+    //stompClient ko init karna honge
+    //subscribe
+        useEffect(()=>{
+            const connectWebSocket=()=>{
+
+                //SockJS
+                const sock = new SockJS(`${baseURL}/chat`);
+                const client=Stomp.over(sock);
+                client.connect({},()=>{
+
+                     
+                    setStompClient(client);
+                    toast.success("connected");
+                    client.subscribe(`/topic/room/${roomId}`,(message)=>
+                    {
+                        console.log(message);
+                        const newMessage=JSON.parse(message.body);
+                        setMessages((prev)=>[...prev,newMessage]);
+                    });
+                });
+
+
+
+
+            };
+            connectWebSocket();
+            //stomp client
+
+        },[roomId])
+    //send message handler
+
+
+
   return (
     <div className=''>
 
