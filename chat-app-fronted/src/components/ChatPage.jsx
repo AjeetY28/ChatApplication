@@ -7,10 +7,10 @@ import { Stomp } from '@stomp/stompjs';
 import toast from "react-hot-toast";
 import { baseURL } from "../config/AxiosHelper";
 import { getMessages } from "../services/RoomService";
-
+import { timeAgo } from '../config/helper';
 const ChatPage = () => {
     
-    const {roomId,currentUser,connected} = useChatContext();
+    const {roomId,currentUser,connected,setConnected,setRoomId,setCurrentUser} = useChatContext();
     // console.log(roomId);
     // console.log(currentUser);
     // console.log(connected);
@@ -81,7 +81,9 @@ const ChatPage = () => {
 
 
             };
-            connectWebSocket();
+            if(connected){
+                connectWebSocket();
+            }
             //stomp client
 
         },[roomId])
@@ -103,6 +105,15 @@ const ChatPage = () => {
             
         };
 
+        function handleLogout()
+        {
+            stompClient.disconnect();
+            setConnected(false);
+            navigate("/");
+            setCurrentUser("");
+            setRoomId("");
+
+        }
 
   return (
     <div className=''>
@@ -112,19 +123,19 @@ const ChatPage = () => {
             {/* room name container*/}
             <div className=''>
                 <h1 className="text-xl font-semibold">
-                 Room : <span>Family Room</span>
+                 Room : <span>{roomId}</span>
                 </h1>
             </div>
             
             {/* user name container*/}
             <div>
                 <h1 className="text-xl font-semibold">
-                 User : <span>Ajeet Yadav</span>
+                 User : <span>{currentUser}</span>
                 </h1>
             </div>
             {/* button leave room*/}
             <div>
-                <button className="dark:bg-red-500 dark:hover:bg-red-700 px-3 py-2 rounded-full">
+                <button onClick={handleLogout} className="dark:bg-red-500 dark:hover:bg-red-700 px-3 py-2 rounded-full">
                     Leave Room
                 </button>
             </div>
@@ -146,10 +157,9 @@ const ChatPage = () => {
                         <div className='flex flex-col gap-1'>
                            <p className='text-sm font-bold'>{message.sender}</p>
                            <p>{message.content}</p>
-
+                            <p className='text-xs text-gray-400'>{timeAgo(message.timeStamp)}</p>
                         </div>
                         </div>
-
                     </div>
                    </div>
                 ))
