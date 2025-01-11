@@ -175,6 +175,12 @@ const ChatPage = () => {
                 value={input}
                 onChange={(e)=>{setInput(e.target.value)
                 }}
+                //press enter to send message
+                onKeyDown={(e)=>{
+                    if(e.key==="Enter"){
+                        sendMessage();
+                    }
+                }}
                 type="text" className='dark:border-gray-600 w-full  dark:bg-gray-800 w h-full rounded-full px-5 py-2 focus:outline-none' 
                 placeholder='Enter your message here'/>
                
