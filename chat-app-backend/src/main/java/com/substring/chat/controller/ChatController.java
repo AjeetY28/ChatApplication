@@ -6,14 +6,17 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.substring.chat.RoomRepository;
+import com.substring.chat.repositories.RoomRepository;
+import com.substring.chat.config.AppConstants;
 import com.substring.chat.entities.Message;
 import com.substring.chat.entities.Room;
 import com.substring.chat.playload.MessageRequest;
 
 @Controller
+@CrossOrigin(AppConstants.FRONT_END_BASE_URL)
 public class ChatController {
 
 
@@ -26,7 +29,7 @@ public class ChatController {
 
     // for sending and receving messages
     @MessageMapping("/sendMessage/{roomId}")
-    @SendTo("/topic/romm/{roomId}")
+    @SendTo("/topic/room/{roomId}")
     public Message sendMessage(
         @DestinationVariable String roomId,
         @RequestBody MessageRequest request
