@@ -16,7 +16,9 @@ services:
     image: ajeet28/chat-app
     build:
       context: .
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/chatapp
     depends_on:
