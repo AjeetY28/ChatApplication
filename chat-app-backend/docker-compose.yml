@@ -32,7 +32,7 @@ services:
     ports:
       - "5173:80"
     networks:
-      -app-network:
+      - app-network:
           
 
 
