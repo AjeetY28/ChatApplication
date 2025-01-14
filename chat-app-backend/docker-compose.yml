@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: DockerFile
     environment:
-        - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/chatapp
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/chatapp
     depends_on:
       - mongo
     networks:
@@ -31,7 +31,7 @@ services:
       dockerfile: DockerFile
     ports:
       - "5173:80"
-    network:
+    networks:
       -app-network:
           
 
