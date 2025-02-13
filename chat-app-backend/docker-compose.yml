@@ -25,7 +25,19 @@ services:
       - mongo
     networks:
       - app-network    
-          
+
+  react-service:
+    image: ajeet28/chat-front
+    build:
+      context:  D:/ChatApp/chat-app-fronted
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    networks:
+      - app-network
+            
+
+
 volumes:
   mongo-db:
 
